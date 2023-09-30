@@ -2,19 +2,8 @@
 #include "raylib.h"
 #include "mushroom.hpp"
 #include <iostream>
+#include <algorithm>
 
-#define NORTH_LAT 54.91091764874563f
-#define NORTH_PIXEL_Y 0.0f
-#define SOUTH_LAT 47.27024633137942f
-#define SOUTH_PIXEL_Y 4745.0f
-
-#define EAST_LONG 15.033333f
-#define EAST_PIXEL_X 3499.0f
-#define WEST_LONG 5.866667f
-#define WEST_PIXEL_X 0.0f
-
-#define LAT_RANGE (NORTH_LAT - SOUTH_LAT)
-#define LONG_RANGE (EAST_LONG - WEST_LONG)
 
 class Renderer {
 	float zoom;
@@ -40,6 +29,18 @@ public:
 		ClearBackground(bg_color);
 		Vector2 map_pos = { x_offset, y_offset };
 		DrawTextureEx(map, map_pos, 0, zoom, WHITE);
+	}
+
+	void draw_tiles(std::vector<MapDataTile>& tiles) {
+		if (most_mushrooms < 0) {
+			for (auto tile : tiles) {
+				most_mushrooms = std::max(tile.mushroom_data.mushrooms.size(), most_mushrooms);
+			}
+		}
+
+		for (int i = 0; i < tiles.size(); i++) {
+			draw_tile(tiles.at(i));
+		}
 	}
 
 	void draw_mushroom_data(MushroomData& data) {
@@ -90,6 +91,19 @@ private:
 		if (x_pos >= 0 && x_pos <= GetScreenWidth() && y_pos >= 0 && y_pos <= GetScreenHeight()) {
 			DrawCircle(x_pos, y_pos, radius, RED);
 		}
+	}
+
+	size_t most_mushrooms = -1; // how many mushrooms the tile with the most mushrooms has
+	void draw_tile(MapDataTile& tile) {
+		float x_pos = latitude_to_screenspace(tile.latitude);
+		float y_pos = longitude_to_screenspace(tile.longitude);
+
+		float width = longitude_to_screenspace(tile.longitude + tile.width_longitude) - x_pos;
+		float height = latitude_to_screenspace(tile.latitude - tile.height_latitude) + y_pos;
+
+		char alpha = 1 - ((tile.mushroom_data.mushrooms.size() / most_mushrooms) * 255);
+		Color color = { 255, 0, 0, alpha };
+		DrawRectangle(x_pos, y_pos, width, height, color);
 	}
 
 	float latitude_to_screenspace(float latitude) {

@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <string>
 #include "csv.hpp"
+#include "coordinates.hpp"
 
 
 struct Mushroom {
@@ -56,7 +56,7 @@ public:
 	}
 
 private:
-	void set_mushroom_value(Mushroom& mushroom, const std::string& str_value, const char value_type) {
+	static void set_mushroom_value(Mushroom& mushroom, const std::string& str_value, const char value_type) {
 		switch (value_type) {
 		case OBSERVED:
 			mushroom.observed_on = str_value;
@@ -77,8 +77,8 @@ private:
 			mushroom.name = str_value;
 		}
 	}
-
-	Mushroom mushroom_from_row(std::array<std::string, 7>& row) {
+public:
+	static Mushroom mushroom_from_row(std::array<std::string, 7>& row) {
 		Mushroom mushroom;
 		char current_field = ColumnTypes::OBSERVED;
 		for (std::string item : row) {
@@ -113,6 +113,34 @@ public:
 				mushroom_data.mushrooms[i] = data.mushrooms[i];
 			}
 		}
+	}
+
+	static void load_all_from_csv(CSVTable<7>& table, std::vector<MapDataTile>& tiles) {
+		// creating the tiles
+		tiles.clear();
+		float tile_height = Y_TILE_COUNT / LAT_RANGE;
+		float tile_width = X_TILE_COUNT / LONG_RANGE;
+		for (int y = 0; y < Y_TILE_COUNT; y++) {
+			for (int x = 0; x < X_TILE_COUNT; x++) {
+				float latitude = NORTH_LAT - (tile_height * y);
+				float longitude = WEST_LONG + (tile_height * x);
+				tiles.push_back(MapDataTile(latitude, longitude, tile_width, tile_height));
+			}
+		}
+
+		// filling the tiles with data
+		for (int i = 0; i < table.content.size(); i++) {
+			// create mushroom
+			Mushroom mushroom = MushroomData::mushroom_from_row(table.content.at(i));
+
+			// calculate which tile the mushroom is in
+			int tile_x = floor((mushroom.longitude - WEST_LONG) / tile_width);
+			int tile_y = floor((mushroom.latitude - SOUTH_LAT) / tile_height);
+
+			// add mushroom to tile
+			tiles[tile_y * X_TILE_COUNT + tile_x].mushroom_data.mushrooms.push_back(mushroom);
+		}
+		
 	}
 
 private:
