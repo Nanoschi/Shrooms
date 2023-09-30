@@ -35,5 +35,8 @@
     <ClInclude Include="src\mushroom.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\csv.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

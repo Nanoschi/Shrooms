@@ -2,9 +2,7 @@
 #include <string>
 #include <vector>
 #include "renderer.hpp"
-
-
-
+#include "mushroom.hpp"
 
 void apply_input(Renderer& renderer) {
 	Vector2 delta_mouse = GetMouseDelta();
@@ -20,14 +18,17 @@ void apply_input(Renderer& renderer) {
 	}
 
 	if (IsKeyPressed(KEY_ENTER)) {
-		renderer.center_map();
+		renderer.center_map() ;
 	}
 	
 }
 
 int main() {
-	MushroomData data;
-	data.load_from_csv("resources/mushrooms/spottings.csv");
+	CSVTable<7> data;
+	data.load_from_file("resources/mushrooms/spottings.csv");
+	MushroomData mushrooms;
+	mushrooms.load_from_csv(data);
+	data.clear();
 	
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "Shroom");
@@ -41,7 +42,7 @@ int main() {
 
 		apply_input(renderer);
 		renderer.draw_app();
-		renderer.draw_mushroom_data(data);
+		renderer.draw_mushroom_data(mushrooms);
 
 		DrawFPS(0, 0);
 

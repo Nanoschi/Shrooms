@@ -73,7 +73,10 @@ private:
 	void draw_mushroom(Mushroom& mushroom) {
 		float x_pos = longitude_to_screenspace(mushroom.longitude);
 		float y_pos = latitude_to_screenspace(mushroom.latitude);
-		DrawCircle(x_pos, y_pos, radius, RED);
+
+		if (x_pos >= 0 && x_pos <= GetScreenWidth() && y_pos >= 0 && y_pos <= GetScreenHeight()) {
+			DrawCircle(x_pos, y_pos, radius, RED);
+		}
 	}
 
 	const float northern_lat = 54.91091764874563f;
@@ -90,7 +93,7 @@ private:
 		return (pixel_per_latitude * (latitude - northern_lat)) * zoom + y_offset;
 	}
 
-	const float east_long = 15.033333;
+	const float east_long = 15.033333f;
 	const float east_pixel_x = 3499.0f;
 	const float west_long = 5.866667f;
 	const float west_pixel_x = 0.0f;

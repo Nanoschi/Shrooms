@@ -3,6 +3,11 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include "csv.hpp"
+
+struct MushroomInfo {
+	  
+};
 
 struct Mushroom {
 	float latitude;
@@ -43,15 +48,10 @@ public:
 
 	MushroomData() : mushrooms(std::vector<Mushroom>()) {};
 
-	void load_from_csv(const char* path) {
-		std::string line;
-		std::ifstream file(path);
-		std::getline(file, line);
-
-		while (std::getline(file, line)) {
-			mushrooms.push_back(mushroom_from_string(line));
+	void load_from_csv(CSVTable<7>& data) {
+		for (auto element : data.content) {
+			mushrooms.push_back(mushroom_from_row(element));
 		}
-
 	}
 
 private:
@@ -77,9 +77,18 @@ private:
 		}
 	}
 
+	Mushroom mushroom_from_row(std::array<std::string, 7>& row) {
+		Mushroom mushroom;
+		char current_field = ColumnTypes::OBSERVED;
+		for (std::string item : row) {
+			set_mushroom_value(mushroom, item, current_field);
+			current_field++;
+		}
+		return mushroom;
+	}
+
 	Mushroom mushroom_from_string(std::string str) {
 		Mushroom mushroom;
-		// observed, (place_guess), lat, long, (coordinates_obscured), lat_name, name
 		size_t last_comma = -1;
 		char current_field = ColumnTypes::OBSERVED;
 		bool in_str = false;
@@ -101,8 +110,5 @@ private:
 		return mushroom;
 
 	}
-
-
-
 
 };

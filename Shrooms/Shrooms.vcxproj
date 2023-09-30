@@ -143,6 +143,7 @@
     <Image Include="resources\map\germany_map.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\csv.hpp" />
     <ClInclude Include="src\mushroom.hpp" />
     <ClInclude Include="src\renderer.hpp" />
   </ItemGroup>
