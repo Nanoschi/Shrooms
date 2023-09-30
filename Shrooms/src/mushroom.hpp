@@ -5,9 +5,6 @@
 #include <string>
 #include "csv.hpp"
 
-struct MushroomInfo {
-	  
-};
 
 struct Mushroom {
 	float latitude;
@@ -54,6 +51,10 @@ public:
 		}
 	}
 
+	void clear() {
+		mushrooms.clear();
+	}
+
 private:
 	void set_mushroom_value(Mushroom& mushroom, const std::string& str_value, const char value_type) {
 		switch (value_type) {
@@ -87,28 +88,38 @@ private:
 		return mushroom;
 	}
 
-	Mushroom mushroom_from_string(std::string str) {
-		Mushroom mushroom;
-		size_t last_comma = -1;
-		char current_field = ColumnTypes::OBSERVED;
-		bool in_str = false;
+};
 
-		for (size_t i = 0; i < str.size(); i++) {
-			if (str.at(i) == '"') {
-				in_str = !in_str;
-			}
-			if (in_str) {
-				continue;
-			}
+class MapDataTile{
+public:
+	MushroomData mushroom_data;
+	float latitude;
+	float longitude;
+	float width_longitude;
+	float height_latitude;
 
-			if (str.at(i) == ',' || i == str.size() - 1) {
-				set_mushroom_value(mushroom, str.substr(last_comma + 1, i - last_comma - 1), current_field);
-				last_comma = i;
-				current_field++;
+	MapDataTile(float _lat, float _long, float _width, float _height) {
+		latitude = _lat;
+		longitude = _long;
+		width_longitude = _width;
+		height_latitude = _height;
+		mushroom_data = MushroomData();
+	}
+
+	void load_from_mushroom_data(MushroomData& data) {
+		mushroom_data.mushrooms.resize(data.mushrooms.size());
+		for (int i = 0; i < data.mushrooms.size(); i++) {
+			if (is_pos_on_tile(data.mushrooms[i].latitude, data.mushrooms[i].longitude)) {
+				mushroom_data.mushrooms[i] = data.mushrooms[i];
 			}
 		}
-		return mushroom;
+	}
 
+private:
+
+	bool is_pos_on_tile(float _lat, float _long) {
+		return (_lat <= latitude + height_latitude && _lat > latitude) 
+			&& (_long <= longitude + width_longitude && _long > longitude);
 	}
 
 };

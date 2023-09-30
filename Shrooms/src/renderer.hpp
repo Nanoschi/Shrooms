@@ -3,6 +3,19 @@
 #include "mushroom.hpp"
 #include <iostream>
 
+#define NORTH_LAT 54.91091764874563f
+#define NORTH_PIXEL_Y 0.0f
+#define SOUTH_LAT 47.27024633137942f
+#define SOUTH_PIXEL_Y 4745.0f
+
+#define EAST_LONG 15.033333f
+#define EAST_PIXEL_X 3499.0f
+#define WEST_LONG 5.866667f
+#define WEST_PIXEL_X 0.0f
+
+#define LAT_RANGE (NORTH_LAT - SOUTH_LAT)
+#define LONG_RANGE (EAST_LONG - WEST_LONG)
+
 class Renderer {
 	float zoom;
 	Texture2D map;
@@ -79,31 +92,21 @@ private:
 		}
 	}
 
-	const float northern_lat = 54.91091764874563f;
-	const float northern_pixel_y = 0.0f;
-	const float southern_lat = 47.27024633137942f;
-	const float southern_pixel_y = 4745.0f;
-
 	float latitude_to_screenspace(float latitude) {
-		float delta_lat = southern_lat - northern_lat;
-		float delta_pixel = southern_pixel_y - northern_pixel_y;
+		float delta_lat = SOUTH_LAT - NORTH_LAT;
+		float delta_pixel = SOUTH_PIXEL_Y - NORTH_PIXEL_Y;
 		float pixel_per_latitude = delta_pixel / delta_lat;
 		
 
-		return (pixel_per_latitude * (latitude - northern_lat)) * zoom + y_offset;
+		return (pixel_per_latitude * (latitude - NORTH_LAT)) * zoom + y_offset;
 	}
 
-	const float east_long = 15.033333f;
-	const float east_pixel_x = 3499.0f;
-	const float west_long = 5.866667f;
-	const float west_pixel_x = 0.0f;
-
 	float longitude_to_screenspace(float longitude) {
-		float delta_lat = east_long - west_long;
-		float delta_pixel = east_pixel_x - west_pixel_x;
+		float delta_lat = EAST_LONG - WEST_LONG;
+		float delta_pixel = EAST_PIXEL_X - WEST_PIXEL_X;
 		float pixel_per_longitude = delta_pixel / delta_lat;
 		
 
-		return (pixel_per_longitude * (longitude - west_long)) * zoom + x_offset;
+		return (pixel_per_longitude * (longitude - WEST_LONG)) * zoom + x_offset;
 	}
 };
