@@ -37,7 +37,7 @@ public:
 				most_mushrooms = std::max(tile.mushroom_data.mushrooms.size(), most_mushrooms);
 			}
 		}
-
+		srand(15);
 		for (int i = 0; i < tiles.size(); i++) {
 			draw_tile(tiles.at(i));
 		}
@@ -95,15 +95,15 @@ private:
 
 	size_t most_mushrooms = -1; // how many mushrooms the tile with the most mushrooms has
 	void draw_tile(MapDataTile& tile) {
-		float x_pos = latitude_to_screenspace(tile.latitude);
-		float y_pos = longitude_to_screenspace(tile.longitude);
+		float y_pos = latitude_to_screenspace(tile.latitude);
+		float x_pos = longitude_to_screenspace(tile.longitude);
 
-		float width = longitude_to_screenspace(tile.longitude + tile.width_longitude) - x_pos;
-		float height = latitude_to_screenspace(tile.latitude - tile.height_latitude) + y_pos;
+		float width = (longitude_to_screenspace(tile.width_longitude) - x_offset) / 2.0f; // no idea why you have to divide it by 2
+		float height = -(latitude_to_screenspace(tile.height_latitude) - y_offset);
 
-		char alpha = 1 - ((tile.mushroom_data.mushrooms.size() / most_mushrooms) * 255);
-		Color color = { 255, 0, 0, alpha };
-		DrawRectangle(x_pos, y_pos, width, height, color);
+		char alpha = x_pos + y_pos / 5; //(((float)tile.mushroom_data.mushrooms.size() / (float)most_mushrooms) * 255);
+		Color color = { rand() % 255, rand() % 255, rand() % 255, alpha};
+		DrawRectangle(x_pos, y_pos, width, width, color);
 	}
 
 	float latitude_to_screenspace(float latitude) {
@@ -116,9 +116,9 @@ private:
 	}
 
 	float longitude_to_screenspace(float longitude) {
-		float delta_lat = EAST_LONG - WEST_LONG;
+		float delta_long = EAST_LONG - WEST_LONG;
 		float delta_pixel = EAST_PIXEL_X - WEST_PIXEL_X;
-		float pixel_per_longitude = delta_pixel / delta_lat;
+		float pixel_per_longitude = delta_pixel / delta_long;
 		
 
 		return (pixel_per_longitude * (longitude - WEST_LONG)) * zoom + x_offset;

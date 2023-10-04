@@ -118,12 +118,12 @@ public:
 	static void load_all_from_csv(CSVTable<7>& table, std::vector<MapDataTile>& tiles) {
 		// creating the tiles
 		tiles.clear();
-		float tile_height = Y_TILE_COUNT / LAT_RANGE;
-		float tile_width = X_TILE_COUNT / LONG_RANGE;
+		float tile_height = LAT_RANGE / Y_TILE_COUNT;
+		float tile_width = LONG_RANGE / X_TILE_COUNT;
 		for (int y = 0; y < Y_TILE_COUNT; y++) {
 			for (int x = 0; x < X_TILE_COUNT; x++) {
-				float latitude = NORTH_LAT - (tile_height * y);
-				float longitude = WEST_LONG + (tile_height * x);
+				float latitude = (NORTH_LAT - (tile_height * y)) - tile_height;
+				float longitude = WEST_LONG + (tile_width * x);
 				tiles.push_back(MapDataTile(latitude, longitude, tile_width, tile_height));
 			}
 		}
@@ -134,8 +134,8 @@ public:
 			Mushroom mushroom = MushroomData::mushroom_from_row(table.content.at(i));
 
 			// calculate which tile the mushroom is in
-			int tile_x = floor((mushroom.longitude - WEST_LONG) / tile_width);
-			int tile_y = floor((mushroom.latitude - SOUTH_LAT) / tile_height);
+			int tile_x = floor(tile_width * ((mushroom.longitude - WEST_LONG) / X_TILE_COUNT));
+			int tile_y = floor(tile_height * ((mushroom.latitude - SOUTH_LAT) / Y_TILE_COUNT));
 
 			// add mushroom to tile
 			tiles[tile_y * X_TILE_COUNT + tile_x].mushroom_data.mushrooms.push_back(mushroom);
