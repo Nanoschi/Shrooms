@@ -122,7 +122,7 @@ public:
 		float tile_width = LONG_RANGE / X_TILE_COUNT;
 		for (int y = 0; y < Y_TILE_COUNT; y++) {
 			for (int x = 0; x < X_TILE_COUNT; x++) {
-				float latitude = (NORTH_LAT - (tile_height * y)) - tile_height;
+				float latitude = (NORTH_LAT - (tile_height * y));
 				float longitude = WEST_LONG + (tile_width * x);
 				tiles.push_back(MapDataTile(latitude, longitude, tile_width, tile_height));
 			}
@@ -134,11 +134,17 @@ public:
 			Mushroom mushroom = MushroomData::mushroom_from_row(table.content.at(i));
 
 			// calculate which tile the mushroom is in
-			int tile_x = floor(tile_width * ((mushroom.longitude - WEST_LONG) / X_TILE_COUNT));
-			int tile_y = floor(tile_height * ((mushroom.latitude - SOUTH_LAT) / Y_TILE_COUNT));
+			int tile_x = floor(((mushroom.longitude - WEST_LONG) / tile_width));
+			int tile_y = floor(((mushroom.latitude - SOUTH_LAT) / tile_height));
+
+			int idx = tile_y * X_TILE_COUNT + tile_x;
+			if (idx < 0 || idx > tiles.size() - 1) {
+				std::cout << "MEEP MEEP MEEP FEHLER !!!" << i << std::endl;
+				continue;
+			}
 
 			// add mushroom to tile
-			tiles[tile_y * X_TILE_COUNT + tile_x].mushroom_data.mushrooms.push_back(mushroom);
+			tiles[idx].mushroom_data.mushrooms.push_back(mushroom);
 		}
 		
 	}

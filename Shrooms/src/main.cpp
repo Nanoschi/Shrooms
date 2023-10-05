@@ -32,7 +32,12 @@ void load_tiles(const char* path, std::vector<MapDataTile>& tiles) {
 
 int main() {
 	std::vector<MapDataTile> tiles;
-	load_tiles("resources/mushrooms/spottings.csv", tiles);
+	load_tiles("resources/mushrooms/test.csv", tiles);
+
+	/*MushroomData md;
+	CSVTable<7> csv;
+	csv.load_from_file("resources/mushrooms/spottings.csv");*/
+	//md.load_from_csv(csv);
 
 	
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -48,6 +53,7 @@ int main() {
 		apply_input(renderer);
 		renderer.draw_app();
 		renderer.draw_tiles(tiles);
+		//renderer.draw_mushroom_data(md);
 
 		DrawFPS(0, 0);
 

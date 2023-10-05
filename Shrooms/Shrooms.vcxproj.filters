@@ -20,8 +20,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="resources\mushrooms\spottings.csv" />
+    <None Include="packages.config" />
+    <None Include="resources\mushrooms\test.csv" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\map\germany_map.png">

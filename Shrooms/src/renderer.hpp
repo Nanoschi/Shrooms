@@ -44,7 +44,7 @@ public:
 	}
 
 	void draw_mushroom_data(MushroomData& data) {
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 30000; i++) {
 			draw_mushroom(data.mushrooms[i]);
 		}
 	}
@@ -98,12 +98,19 @@ private:
 		float y_pos = latitude_to_screenspace(tile.latitude);
 		float x_pos = longitude_to_screenspace(tile.longitude);
 
-		float width = (longitude_to_screenspace(tile.width_longitude) - x_offset) / 2.0f; // no idea why you have to divide it by 2
-		float height = -(latitude_to_screenspace(tile.height_latitude) - y_offset);
+		/*float width = (longitude_to_screenspace(tile.width_longitude) - x_offset);
+		float height = -(latitude_to_screenspace(tile.height_latitude) - y_offset);*/
+
+		float west_pixel = longitude_to_screenspace(WEST_LONG);
+		float east_pixel = longitude_to_screenspace(EAST_LONG);
+		float north_pixel = latitude_to_screenspace(NORTH_LAT);
+		float south_pixel = latitude_to_screenspace(SOUTH_LAT);
+		float width = (east_pixel - west_pixel) / X_TILE_COUNT;
+		float height = (south_pixel - north_pixel) / Y_TILE_COUNT;
 
 		char alpha = x_pos + y_pos / 5; //(((float)tile.mushroom_data.mushrooms.size() / (float)most_mushrooms) * 255);
 		Color color = { rand() % 255, rand() % 255, rand() % 255, alpha};
-		DrawRectangle(x_pos, y_pos, width, width, color);
+		DrawRectangle(x_pos, y_pos, width, height, color);
 	}
 
 	float latitude_to_screenspace(float latitude) {
