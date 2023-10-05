@@ -32,7 +32,7 @@ void load_tiles(const char* path, std::vector<MapDataTile>& tiles) {
 
 int main() {
 	std::vector<MapDataTile> tiles;
-	load_tiles("resources/mushrooms/test.csv", tiles);
+	load_tiles("resources/mushrooms/spottings.csv", tiles);
 
 	/*MushroomData md;
 	CSVTable<7> csv;

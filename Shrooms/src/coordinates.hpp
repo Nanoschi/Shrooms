@@ -15,5 +15,5 @@
 #define LONG_RANGE (EAST_LONG - WEST_LONG)
 
 // germany height/width ration is ~1.356
-#define X_TILE_COUNT 10
+#define X_TILE_COUNT 20
 #define Y_TILE_COUNT (int)(X_TILE_COUNT * 1.356)

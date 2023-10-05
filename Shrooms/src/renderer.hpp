@@ -7,17 +7,20 @@
 
 class Renderer {
 	float zoom;
-	Texture2D map;
 	float x_offset, y_offset;
+	size_t most_mushrooms = 0;
 
+	Texture2D map;
 	Color bg_color;
+
+
 
 public:
 	Renderer() {
 		zoom = 0.10f;
 		x_offset = 0; y_offset = 0;
-		map = Texture2D();
 
+		map = Texture2D();
 		bg_color = { 240, 240, 240, 255 };
 	}
 
@@ -32,12 +35,10 @@ public:
 	}
 
 	void draw_tiles(std::vector<MapDataTile>& tiles) {
-		if (most_mushrooms < 0) {
-			for (auto tile : tiles) {
-				most_mushrooms = std::max(tile.mushroom_data.mushrooms.size(), most_mushrooms);
-			}
+		if (most_mushrooms == 0) {
+			calculate_most_mushrooms(tiles);
 		}
-		srand(15);
+
 		for (int i = 0; i < tiles.size(); i++) {
 			draw_tile(tiles.at(i));
 		}
@@ -93,13 +94,9 @@ private:
 		}
 	}
 
-	size_t most_mushrooms = -1; // how many mushrooms the tile with the most mushrooms has
 	void draw_tile(MapDataTile& tile) {
 		float y_pos = latitude_to_screenspace(tile.latitude);
 		float x_pos = longitude_to_screenspace(tile.longitude);
-
-		/*float width = (longitude_to_screenspace(tile.width_longitude) - x_offset);
-		float height = -(latitude_to_screenspace(tile.height_latitude) - y_offset);*/
 
 		float west_pixel = longitude_to_screenspace(WEST_LONG);
 		float east_pixel = longitude_to_screenspace(EAST_LONG);
@@ -108,8 +105,12 @@ private:
 		float width = (east_pixel - west_pixel) / X_TILE_COUNT;
 		float height = (south_pixel - north_pixel) / Y_TILE_COUNT;
 
-		char alpha = x_pos + y_pos / 5; //(((float)tile.mushroom_data.mushrooms.size() / (float)most_mushrooms) * 255);
-		Color color = { rand() % 255, rand() % 255, rand() % 255, alpha};
+		if (!is_rect_on_screen(x_pos, y_pos, width, height)) {
+			return;
+		}
+
+		char alpha = (char)(tile.mushroom_data.mushrooms.size() / (double)most_mushrooms * 255);
+		Color color = { 255, 0, 0, alpha};
 		DrawRectangle(x_pos, y_pos, width, height, color);
 	}
 
@@ -118,7 +119,6 @@ private:
 		float delta_pixel = SOUTH_PIXEL_Y - NORTH_PIXEL_Y;
 		float pixel_per_latitude = delta_pixel / delta_lat;
 		
-
 		return (pixel_per_latitude * (latitude - NORTH_LAT)) * zoom + y_offset;
 	}
 
@@ -127,7 +127,24 @@ private:
 		float delta_pixel = EAST_PIXEL_X - WEST_PIXEL_X;
 		float pixel_per_longitude = delta_pixel / delta_long;
 		
-
 		return (pixel_per_longitude * (longitude - WEST_LONG)) * zoom + x_offset;
+	}
+
+	bool is_rect_on_screen(int x, int y, int width, int height) {
+		return (x <= GetScreenWidth()) && (y <= GetScreenHeight())
+			&& (x + width >= 0) && (y + height >= 0);
+	}
+
+	bool is_pos_on_screen(int x, int y) {
+		return is_rect_on_screen(x, y, 0, 0);
+	}
+
+	void calculate_most_mushrooms(std::vector<MapDataTile>& tiles) {
+		size_t most = 0;
+		for (int i = 0; i < tiles.size(); i++) {
+			most = tiles[i].mushroom_data.mushrooms.size() > most ? tiles[i].mushroom_data.mushrooms.size() : most;
+		}
+		most_mushrooms = most;
+		std::cout << "MOST:  ads asd asd as da a: " << most << std::endl;
 	}
 };
