@@ -13,8 +13,6 @@ class Renderer {
 	Texture2D map;
 	Color bg_color;
 
-
-
 public:
 	Renderer() {
 		zoom = 0.10f;
@@ -39,13 +37,37 @@ public:
 			calculate_most_mushrooms(tiles);
 		}
 
-		for (int i = 0; i < tiles.size(); i++) {
-			draw_tile(tiles.at(i));
+		if (zoom > 1) {
+			for (int i = 0; i < tiles.size(); i++) {
+				int x = longitude_to_screenspace(tiles[i].longitude);
+				int y = latitude_to_screenspace(tiles[i].latitude);
+				int width = long_to_width(tiles[i].width_longitude);
+				int height = lat_to_height(tiles[i].height_latitude);
+				if (!is_rect_on_screen(x, y, width, height)) {
+					continue;
+				}
+
+				for (int j = 0; j < tiles[i].mushroom_data.mushrooms.size(); j++) {
+					draw_mushroom(tiles[i].mushroom_data.mushrooms[j]);
+				}
+			}
 		}
+		else {
+			for (int i = 0; i < tiles.size(); i++) {
+				draw_tile(tiles.at(i));
+			}
+		}
+
+		float x = longitude_to_screenspace(43.5);
+		float y = latitude_to_screenspace(40);
+		float w = long_to_width(0.4);
+		float h = lat_to_height(0.4);
+		std::cout << is_geo_rect_on_screen(43.5, 40, 0.4, 0.4) << " Rect: " << is_rect_on_screen(x, y, w, h) << std::endl;
+		DrawRectangle(x, y, w, h, GREEN);
 	}
 
 	void draw_mushroom_data(MushroomData& data) {
-		for (int i = 0; i < 30000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			draw_mushroom(data.mushrooms[i]);
 		}
 	}
@@ -98,45 +120,49 @@ private:
 		float y_pos = latitude_to_screenspace(tile.latitude);
 		float x_pos = longitude_to_screenspace(tile.longitude);
 
-		float west_pixel = longitude_to_screenspace(WEST_LONG);
-		float east_pixel = longitude_to_screenspace(EAST_LONG);
-		float north_pixel = latitude_to_screenspace(NORTH_LAT);
-		float south_pixel = latitude_to_screenspace(SOUTH_LAT);
-		float width = (east_pixel - west_pixel) / X_TILE_COUNT;
-		float height = (south_pixel - north_pixel) / Y_TILE_COUNT;
-
-		if (!is_rect_on_screen(x_pos, y_pos, width, height)) {
-			return;
-		}
+		float width = long_to_width(tile.width_longitude);
+		float height = lat_to_height(tile.height_latitude);
 
 		char alpha = (char)(tile.mushroom_data.mushrooms.size() / (double)most_mushrooms * 255);
 		Color color = { 255, 0, 0, alpha};
 		DrawRectangle(x_pos, y_pos, width, height, color);
 	}
 
+	// conversion functions
+
 	float latitude_to_screenspace(float latitude) {
-		float delta_lat = SOUTH_LAT - NORTH_LAT;
-		float delta_pixel = SOUTH_PIXEL_Y - NORTH_PIXEL_Y;
-		float pixel_per_latitude = delta_pixel / delta_lat;
-		
-		return (pixel_per_latitude * (latitude - NORTH_LAT)) * zoom + y_offset;
+		return (PIXEL_PER_LAT * (latitude - SOUTH_LAT)) * zoom + y_offset;
 	}
 
 	float longitude_to_screenspace(float longitude) {
-		float delta_long = EAST_LONG - WEST_LONG;
-		float delta_pixel = EAST_PIXEL_X - WEST_PIXEL_X;
-		float pixel_per_longitude = delta_pixel / delta_long;
-		
-		return (pixel_per_longitude * (longitude - WEST_LONG)) * zoom + x_offset;
+		return (PIXEL_PER_LONG * (longitude - WEST_LONG)) * zoom + x_offset;
+	}
+
+	int long_to_width(float long_width) {
+		return long_width * PIXEL_PER_LONG * zoom;
+	}
+
+	int lat_to_height(float lat_height) {
+		return lat_height * PIXEL_PER_LAT * zoom;
 	}
 
 	bool is_rect_on_screen(int x, int y, int width, int height) {
-		return (x <= GetScreenWidth()) && (y <= GetScreenHeight())
-			&& (x + width >= 0) && (y + height >= 0);
+		return is_pos_on_screen(x, y) || is_pos_on_screen(x, y + height)
+			|| is_pos_on_screen(x + width, y) || is_pos_on_screen(x + width, y + height);
+	}
+
+	bool is_geo_rect_on_screen(float longitude, float latitude, float width, float height) {
+		return is_rect_on_screen(
+			longitude_to_screenspace(longitude),
+			latitude_to_screenspace(latitude),
+			long_to_width(width),
+			lat_to_height(height)
+		);
 	}
 
 	bool is_pos_on_screen(int x, int y) {
-		return is_rect_on_screen(x, y, 0, 0);
+		return x >= x_offset && x <= GetScreenWidth() + x_offset
+			&& y >= y_offset && y <= GetScreenHeight() + y + y_offset;
 	}
 
 	void calculate_most_mushrooms(std::vector<MapDataTile>& tiles) {

@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClInclude Include="src\coordinates.hpp" />
     <ClInclude Include="src\csv.hpp" />
+    <ClInclude Include="src\gui.hpp" />
     <ClInclude Include="src\mushroom.hpp" />
     <ClInclude Include="src\renderer.hpp" />
   </ItemGroup>
